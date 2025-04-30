@@ -62,17 +62,20 @@ class KinderpediaScraperService
     data_rows = json['data'] || []
 
     # Extract both child ID and family ID from the HTML content
-    children_data = data_rows.map do |row|
-      # Extract child ID from the view-child link
-      child_id = row[2].match(/\/view-child\/(\d+)/)&.captures&.first
-
+    children_data = data_rows.flat_map do |row|
       # Extract family ID from the family management link
       family_id = row[1].match(/\/mykp\/children\/family\/manage\/(\d+)/)&.captures&.first
 
-      {
-        child_id: child_id,
-        family_id: family_id
-      }
+      # Extract all child IDs from the children column (row[2])
+      child_ids = row[2].scan(/\/view-child\/(\d+)/).flatten
+
+      # Create an entry for each child in the family
+      child_ids.map do |child_id|
+        {
+          child_id: child_id,
+          family_id: family_id
+        }
+      end
     end.compact # Remove any entries where IDs couldn't be extracted
 
     puts "Fetched #{children_data.length} children with their family IDs"
