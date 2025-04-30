@@ -1,9 +1,12 @@
 <div class="container mt-5">
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="card">
         <div class="card-header">
           <h2 class="text-center">Kinderpedia Document Downloader</h2>
+          <% if @learner_count > 0 %>
+            <p class="text-center mb-0">Total Learners: <%= @learner_count %></p>
+          <% end %>
         </div>
         <div class="card-body">
           <% if flash[:notice] %>
@@ -21,15 +24,39 @@
           <%= form_tag download_kinderpedia_path, method: :post, class: "mt-3" do %>
             <div class="mb-3">
               <%= label_tag :child_url, "Child's URL", class: "form-label" %>
-              <%= text_field_tag :child_url, nil, class: "form-control", placeholder: "https://app.kinderpedia.co/mykp/children/view-child/312368/general", required: true %>
+              <%= text_field_tag :child_url, nil, class: "form-control", placeholder: "https://app.kinderpedia.co/mykp/children/view-child/child_id/general", required: true %>
               <div class="form-text">Enter the full URL of the child's page</div>
             </div>
-<br>
+            <br>
             <%= submit_tag "Download Documents", class: "btn btn-primary w-100" %>
           <% end %>
           <br>
           <%= form_tag download_all_kinderpedia_path, method: :post do %>
             <%= submit_tag "Download Documents for All Children", class: "btn btn-success w-100" %>
+          <% end %>
+
+          <% if @children_data&.any? %>
+            <div class="mt-4">
+              <h4>Children List</h4>
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Child ID</th>
+                      <th>Family ID</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @children_data.each do |child| %>
+                      <tr>
+                        <td><%= child[:child_id] %></td>
+                        <td><%= child[:family_id] %></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           <% end %>
         </div>
       </div>

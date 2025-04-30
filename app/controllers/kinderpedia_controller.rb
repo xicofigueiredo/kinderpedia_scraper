@@ -2,6 +2,14 @@ require 'zip'
 
 class KinderpediaController < ApplicationController
   def index
+    @scraper = KinderpediaScraperService.new
+    @children_data = @scraper.fetch_all_children.sort_by { |child| child[:family_id].to_i }
+    @learner_count = @children_data.size
+  rescue => e
+    Rails.logger.error "Error fetching children data: #{e.message}"
+    flash[:alert] = "Error fetching children data. Please try again."
+    @children_data = []
+    @learner_count = 0
   end
 
   def download
