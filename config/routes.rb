@@ -9,4 +9,6 @@ Rails.application.routes.draw do
   root 'kinderpedia#index'
 
   post 'download', to: 'kinderpedia#download', as: 'download_kinderpedia'
+  post 'kinderpedia/download_all', to: 'kinderpedia#download_all', as: 'download_all_kinderpedia'
+
 end

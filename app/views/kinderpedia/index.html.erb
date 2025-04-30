@@ -24,8 +24,12 @@
               <%= text_field_tag :child_url, nil, class: "form-control", placeholder: "https://app.kinderpedia.co/mykp/children/view-child/312368/general", required: true %>
               <div class="form-text">Enter the full URL of the child's page</div>
             </div>
-
+<br>
             <%= submit_tag "Download Documents", class: "btn btn-primary w-100" %>
+          <% end %>
+          <br>
+          <%= form_tag download_all_kinderpedia_path, method: :post do %>
+            <%= submit_tag "Download Documents for All Children", class: "btn btn-success w-100" %>
           <% end %>
         </div>
       </div>
