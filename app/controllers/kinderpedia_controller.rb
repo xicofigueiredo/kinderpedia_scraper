@@ -42,22 +42,17 @@ class KinderpediaController < ApplicationController
   def download_all
     @scraper = KinderpediaScraperService.new
 
-    begin
-      children_ids = @scraper.fetch_all_children
+      @children_ids = @scraper.fetch_all_children
 
-      if children_ids.empty?
+      if @children_ids.empty?
         flash[:alert] = "No children found."
       else
-        Rails.logger.info "Fetched child IDs: #{children_ids.inspect}"
-        flash[:notice] = "Fetched #{children_ids.size} children."
+        Rails.logger.info "Fetched child IDs: #{@children_ids.inspect}"
+        flash[:notice] = "Fetched #{@children_ids.size} children."
       end
 
       redirect_to root_path
-    rescue => e
-      Rails.logger.error "Exception in download_all: #{e.message}\n#{e.backtrace.join("\n")}"
-      flash[:alert] = "An error occurred: #{e.message}"
-      redirect_to root_path
-    end
+
   end
 
 

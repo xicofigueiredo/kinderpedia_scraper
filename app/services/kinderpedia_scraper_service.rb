@@ -58,20 +58,26 @@ class KinderpediaScraperService
     response = HTTParty.get(url, headers: headers)
     puts "Fetch children response code: #{response.code}"
 
-    if response.success?
-      json = JSON.parse(response.body)
-      data_rows = json['data'] || []
-      children_ids = data_rows.map { |row| row[0].to_s }  # First column usually has the ID
-      puts "Fetched children IDs: #{children_ids}"
-      return children_ids
-    else
-      puts "Fetch children failed: #{response.code}"
-      return []
-    end
+    json = JSON.parse(response.body)
+    data_rows = json['data'] || []
+
+    # Extract both child ID and family ID from the HTML content
+    children_data = data_rows.map do |row|
+      # Extract child ID from the view-child link
+      child_id = row[2].match(/\/view-child\/(\d+)/)&.captures&.first
+
+      # Extract family ID from the family management link
+      family_id = row[1].match(/\/mykp\/children\/family\/manage\/(\d+)/)&.captures&.first
+
+      {
+        child_id: child_id,
+        family_id: family_id
+      }
+    end.compact # Remove any entries where IDs couldn't be extracted
+
+    puts "Fetched #{children_data.length} children with their family IDs"
+    children_data
   end
-
-
-
 
   def download_documents(child_url, storage_subdir: 'documents')
     return false unless login && @token
