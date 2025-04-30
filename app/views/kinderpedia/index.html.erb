@@ -4,9 +4,6 @@
       <div class="card">
         <div class="card-header">
           <h2 class="text-center">Kinderpedia Document Downloader</h2>
-          <% if @learner_count > 0 %>
-            <p class="text-center mb-0">Total Learners: <%= @learner_count %></p>
-          <% end %>
         </div>
         <div class="card-body">
           <% if flash[:notice] %>
@@ -25,10 +22,9 @@
             <div class="mb-3">
               <%= label_tag :child_url, "Child's URL", class: "form-label" %>
               <%= text_field_tag :child_url, nil, class: "form-control", placeholder: "https://app.kinderpedia.co/mykp/children/view-child/child_id/general", required: true %>
-              <div class="form-text">Enter the full URL of the child's page</div>
             </div>
             <br>
-            <%= submit_tag "Download Documents", class: "btn btn-primary w-100" %>
+            <%= submit_tag "Download Documents for this child", class: "btn btn-primary w-100" %>
           <% end %>
           <br>
           <%= form_tag download_all_kinderpedia_path, method: :post do %>

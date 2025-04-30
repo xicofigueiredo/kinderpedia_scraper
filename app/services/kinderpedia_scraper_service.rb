@@ -101,22 +101,41 @@ class KinderpediaScraperService
       return false
     end
 
+    downloaded_count = 0
+    skipped_count = 0
+
     all_documents.each do |doc|
       file_url = doc['url']
       file_name = doc['name']
       next unless file_url && file_name
 
-      puts "Downloading document: #{file_name}"
+      # Sanitize the file name by replacing invalid characters
+      sanitized_name = sanitize_filename(file_name)
+      file_path = storage_dir.join(sanitized_name)
+
+      if File.exist?(file_path) && File.size(file_path) > 0
+        puts "Skipping existing file: #{sanitized_name}"
+        skipped_count += 1
+        next
+      end
+
+      puts "Downloading document: #{file_name} as #{sanitized_name}"
       encoded_url = Addressable::URI.encode(file_url)
       file_response = HTTParty.get(encoded_url)
 
       if file_response.success?
-        File.open(storage_dir.join(file_name), 'wb') { |f| f.write(file_response.body) }
-        puts "Saved: #{file_name}"
+        File.open(file_path, 'wb') { |f| f.write(file_response.body) }
+        puts "Saved: #{sanitized_name}"
+        downloaded_count += 1
       else
         puts "Failed to download: #{file_name}"
       end
     end
+
+    puts "Download summary for child #{child_id}:"
+    puts "- Downloaded: #{downloaded_count} new files"
+    puts "- Skipped: #{skipped_count} existing files"
+    puts "- Total files: #{downloaded_count + skipped_count}"
 
     true
   end
@@ -140,6 +159,17 @@ class KinderpediaScraperService
     return [] unless response.success?
     json = JSON.parse(response.body)
     json.dig('result', 'documents') || []
+  end
+
+  def sanitize_filename(filename)
+    # Remove or replace invalid characters
+    sanitized = filename.gsub(%r{[/\\?%*:|"<>]}, '_')
+    # Replace multiple spaces/underscores with a single underscore
+    sanitized = sanitized.gsub(/\s+/, '_')
+    # Remove any leading/trailing spaces or dots
+    sanitized = sanitized.strip.gsub(/^\.+|\.+$/, '')
+    # Ensure the filename is not empty
+    sanitized.presence || 'unnamed_file'
   end
 
 end
