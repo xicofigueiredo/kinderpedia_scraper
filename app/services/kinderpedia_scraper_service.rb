@@ -2,6 +2,7 @@ require 'httparty'
 require 'nokogiri'
 require 'uri'
 require 'addressable/uri'
+require 'zip'
 
 class KinderpediaScraperService
   include HTTParty
@@ -86,9 +87,13 @@ class KinderpediaScraperService
     return false unless login && @token
 
     child_id = child_url[%r{/view-child/(\d+)/}, 1] || "unknown_child"
-    storage_dir = Rails.root.join('storage', storage_subdir, child_id)
-    FileUtils.mkdir_p(storage_dir)
-    puts "Created storage directory: #{storage_dir}"
+    zip_path = Rails.root.join('storage', storage_subdir, "#{child_id}.zip")
+
+    # Skip if zip already exists
+    if File.exist?(zip_path)
+      puts "Skipping child #{child_id} - zip file already exists"
+      return true
+    end
 
     # Download both private and public documents
     private_docs = fetch_documents(child_id, 'children')
@@ -101,41 +106,30 @@ class KinderpediaScraperService
       return false
     end
 
-    downloaded_count = 0
-    skipped_count = 0
+    # Create zip file directly
+    Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
+      all_documents.each do |doc|
+        file_url = doc['url']
+        file_name = doc['name']
+        next unless file_url && file_name
 
-    all_documents.each do |doc|
-      file_url = doc['url']
-      file_name = doc['name']
-      next unless file_url && file_name
+        sanitized_name = sanitize_filename(file_name)
+        puts "Downloading document: #{file_name} as #{sanitized_name}"
 
-      # Sanitize the file name by replacing invalid characters
-      sanitized_name = sanitize_filename(file_name)
-      file_path = storage_dir.join(sanitized_name)
+        encoded_url = Addressable::URI.encode(file_url)
+        file_response = HTTParty.get(encoded_url)
 
-      if File.exist?(file_path) && File.size(file_path) > 0
-        puts "Skipping existing file: #{sanitized_name}"
-        skipped_count += 1
-        next
-      end
-
-      puts "Downloading document: #{file_name} as #{sanitized_name}"
-      encoded_url = Addressable::URI.encode(file_url)
-      file_response = HTTParty.get(encoded_url)
-
-      if file_response.success?
-        File.open(file_path, 'wb') { |f| f.write(file_response.body) }
-        puts "Saved: #{sanitized_name}"
-        downloaded_count += 1
-      else
-        puts "Failed to download: #{file_name}"
+        if file_response.success?
+          # Add file directly to zip without saving to disk
+          zipfile.get_output_stream(sanitized_name) do |f|
+            f.write(file_response.body)
+          end
+          puts "Added to zip: #{sanitized_name}"
+        else
+          puts "Failed to download: #{file_name}"
+        end
       end
     end
-
-    puts "Download summary for child #{child_id}:"
-    puts "- Downloaded: #{downloaded_count} new files"
-    puts "- Skipped: #{skipped_count} existing files"
-    puts "- Total files: #{downloaded_count + skipped_count}"
 
     true
   end

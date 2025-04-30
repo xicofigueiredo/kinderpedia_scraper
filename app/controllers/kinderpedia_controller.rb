@@ -55,38 +55,18 @@ class KinderpediaController < ApplicationController
 
     @children_ids.each do |child_data|
       child_id = child_data[:child_id]
-      zip_path = Rails.root.join('storage', document_type, "#{child_id}.zip")
-
-      if File.exist?(zip_path)
-        puts "Skipping child #{child_id} - zip file already exists"
-        skipped_count += 1
-        next
-      end
-
       child_url = "https://app.kinderpedia.co/mykp/children/view-child/#{child_id}/general"
 
       if @scraper.download_documents(child_url, storage_subdir: document_type)
-        storage_dir = Rails.root.join('storage', document_type, child_id)
-        entries = Dir.entries(storage_dir) - %w[. ..]
-
-        unless entries.empty?
-          Zip::File.open(zip_path, Zip::File::CREATE) do |zipfile|
-            entries.each do |entry|
-              file_path = File.join(storage_dir, entry)
-              zipfile.add(entry, file_path) if File.file?(file_path)
-            end
-          end
-          success_count += 1
-        end
+        success_count += 1
       else
         failed_children << child_id
       end
     end
 
     summary = []
-    summary << "Processed #{success_count} new children" if success_count > 0
-    summary << "Skipped #{skipped_count} existing children" if skipped_count > 0
-    summary << "Failed #{failed_children.size} children" if failed_children.any?
+    summary << "Created zip files for #{success_count} children"
+    summary << "Failed for #{failed_children.size} children" if failed_children.any?
     summary << "Files are in storage/#{document_type}/"
 
     flash[:notice] = summary.join("\n")
@@ -95,7 +75,7 @@ class KinderpediaController < ApplicationController
       flash[:alert] = "Failed children IDs: #{failed_children.join(', ')}"
     end
 
-    Rails.logger.info "Download completed. New: #{success_count}, Skipped: #{skipped_count}, Failed: #{failed_children.size}"
+    Rails.logger.info "Download completed. Success: #{success_count}, Failed: #{failed_children.size}"
     redirect_to root_path
   end
 
