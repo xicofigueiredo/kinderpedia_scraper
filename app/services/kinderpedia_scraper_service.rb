@@ -46,14 +46,14 @@ class KinderpediaScraperService
   end
 
   def fetch_all_children
-    url = "https://app.kinderpedia.co/mykp/children/family/list/active/0?draw=1&start=0&length=1000"
+    url = "https://app.kinderpedia.co/mykp/children/family/list/inactive/0?draw=1&start=0&length=1000"
 
     headers = {
       'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
       'Accept' => 'application/json, text/javascript, */*; q=0.01',
       'x-requested-with' => 'XMLHttpRequest',
       'Referer' => 'https://app.kinderpedia.co/mykp/children/family/list',
-      'Cookie' => '_fbp=fb.1.1744636965113.287244512380077365; _gcl_au=1.1.2037038041.1744636965; hubspotutk=bd06359308846bc04a6a3febb2e46b19; __hstc=133375057.bd06359308846bc04a6a3febb2e46b19.1744637019120.1744637019120.1746028338700.2; __hssrc=1; _ga=GA1.1.33057958.1746028339; intercom-id-obupjdit=6b087761-0f93-44d1-9353-c94d7824b7ba; intercom-device-id-obupjdit=77c8f069-1ab2-4294-b0cf-fc604b307c0b; applicationType=teacher; PHPSESSID=4dca315d1b77be6729f75fb91b65edcb; sidebar_closed=1; JWToken=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDYwMjk4ODMsImV4cCI6MTc0NjAzNzA4Mywicm9sZXMiOlsiUk9MRV9VU0VSIl0sImVtYWlsIjoiY29udGFjdEBicmF2ZWdlbmVyYXRpb25hY2FkZW15LmNvbSJ9.E1pexF0izcUDUMMhyx0sBWGtIM5UhLjrlTndKsuztDI; Refresh-Token=dae13fe719c146d52c995543b7f8ff719d37acbe333c5ff9f36a0d84ae65d725a5a1fe2395275dd106526c91147ae4893fcc5269064a3dfc3a1056aeb5bfe6d1; cf_clearance=udcplXYtNvtyxYgbCTBe.s9fCnE9LdRBXOllb.KtsZE-1746035882-1.2.1.1-RR1GvHnfGmfSOrL4sXwd_ZAqY6.bq.Ahc1naY7tcra9eb4p32uYsveTM7H5Z60h46EsaBTH.aK_Hp7j_cY5h61Hk_hfL.seRuaa2i8b2dwaFkTQ9pfsO.3eFzNYY_V7uVeyJ0DCfCfpm5DaKtSQMq0vb.Z.xYRWGozKVDcRdYMkVVDz4AFzlEgZzKHXd8.nayofpL.LfXykeW..6Q_VXDp6YS7hx6L.S0gOToh8lYYOGjIGk.BFAe2jlWFMdZLGYfhJhL6HC7rGwI5mK711AVzxOzfBEdl_0XF9crC0HBBulAXMwqndpI_nk2kp6GWyvir5d9i5HrW96eBUlhmbJAw0k0dEeHUosduVlVwhxTRE; intercom-session-obupjdit=UU91MllCNVY3MWtsQnFxWHNxUHAra2ZtakphRVZldDhHbDM0WE9reHd3YlAvRlQxZ0RQS0o2Rmw2NGVYTTB0QXZGN0c4NzJnYnRPVllPMnlFQTRhQ3VGc1d2Nk1RTktYUzNWajN5U1BmMzA9LS1RL0VtU2lVeEMrWWVxVWF1bkV3MlpBPT0=--561cd8d9befb802ecff92330743db4945043b337; _ga_0RFGRKYM5Y=GS1.1.1746028339.1.1.1746036119.60.0.0; _ga_9CFS1VMQ89=GS1.1.1746028339.1.1.1746036119.60.0.0; _ga_35Q17HW8BG=GS1.1.1746028339.1.1.1746036119.60.0.0; _ga_SQ2QLPWJ8B=GS1.1.1746028339.1.1.1746036119.60.0.0'
+      'Cookie' => ''
     }
 
     response = HTTParty.get(url, headers: headers)
